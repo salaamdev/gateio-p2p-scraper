@@ -2,8 +2,8 @@
     {
         "Merchant Name": "MrMoneyke",
         "Price": "119.70 KES",
-        "Size/Limit": "-10%",
-        "Discount": "Beginner's Discount"
+        "Size/Limit": "1~10 USDT",
+        "Discount": "N/A"
     },
     {
         "Merchant Name": "FRANKEINHEIMER",
@@ -26,7 +26,7 @@
     {
         "Merchant Name": "MrMoneyke",
         "Price": "132.48 KES",
-        "Size/Limit": "1~213.3 USDT",
+        "Size/Limit": "1~120 USDT",
         "Discount": "N/A"
     },
     {
@@ -49,7 +49,7 @@
     },
     {
         "Merchant Name": "DeanAndati",
-        "Price": "152.20 KES",
+        "Price": "152.08 KES",
         "Size/Limit": "1~754 USDT",
         "Discount": "N/A"
     }
