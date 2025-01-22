@@ -18,6 +18,7 @@
   "homepage": "https://github.com/salaamdev/p2p_alerts#readme",
   "description": "",
   "dependencies": {
+    "node-notifier": "^10.0.1",
     "puppeteer": "^24.1.0"
   }
 }
