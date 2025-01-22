@@ -1,6 +1,0 @@
-[2025-01-22T12:57:16.262Z] ERROR: An error occurred during scraping: | Details: Error: net::ERR_CONNECTION_TIMED_OUT at https://www.gate.io/p2p/buy/USDT-KES
-    at navigate (C:\Users\salaam\Desktop\projects\private\p2p_alerts\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\Frame.js:183:27)
-    at async Deferred.race (C:\Users\salaam\Desktop\projects\private\p2p_alerts\node_modules\puppeteer-core\lib\cjs\puppeteer\util\Deferred.js:36:20)
-    at async CdpFrame.goto (C:\Users\salaam\Desktop\projects\private\p2p_alerts\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\Frame.js:149:25)
-    at async CdpPage.goto (C:\Users\salaam\Desktop\projects\private\p2p_alerts\node_modules\puppeteer-core\lib\cjs\puppeteer\api\Page.js:574:20)
-    at async runScraper (C:\Users\salaam\Desktop\projects\private\p2p_alerts\src\gateio\main\scrapper_v2.js:65:9)
