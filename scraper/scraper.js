@@ -4,6 +4,7 @@ const {log, warn, errorLog} = require('./logger');
 const {autoScroll} = require('./autoScroll');
 const {extractMerchants} = require('./extract');
 const {saveToJson, saveToCsv} = require('./dataSaver');
+const {getAdjacentMerchants, saveFilteredToJson, saveFilteredToCsv} = require('./filterMerchant');
 const {URL, chromeExecutablePath} = require('./config');
 
 /**
@@ -35,7 +36,6 @@ async function runScraper () {
         await page.waitForSelector('.mantine-1s8spa1', {timeout: 30000});
         log("Merchant elements detected.");
 
-        // Scroll to load all merchants (handles dynamically loaded content)
         log("Starting auto-scroll to load dynamic content...");
         await autoScroll(page);
         log("Auto-scroll complete.");
@@ -48,6 +48,14 @@ async function runScraper () {
             log(`Successfully extracted ${ merchants.length } merchants! Saving data...`);
             saveToJson(merchants);
             saveToCsv(merchants);
+
+            // Filter and save adjacent merchants
+            const filteredMerchants = getAdjacentMerchants(merchants);
+            if (filteredMerchants.length > 0) {
+                log(`Filtering adjacent merchants for coinftw...`);
+                saveFilteredToJson(filteredMerchants);
+                saveFilteredToCsv(filteredMerchants);
+            }
         } else {
             warn("No merchants found. Verify the selectors or if the website structure has changed.");
         }
