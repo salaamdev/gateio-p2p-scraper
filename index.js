@@ -1,5 +1,11 @@
 // index.js
 const {runScraper} = require('./scraper/scraper');
 
-// Start the scraping process
-runScraper();
+function startScrapingRegularly () {
+    runScraper();
+    setInterval(() => {
+        runScraper();
+    }, 60000);
+}
+
+startScrapingRegularly();
