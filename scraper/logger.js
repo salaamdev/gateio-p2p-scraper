@@ -1,4 +1,4 @@
-// logger/logger.js
+// scraper/logger.js
 const fs = require('fs');
 const path = require('path');
 
@@ -15,7 +15,12 @@ class Logger {
 
     write (message) {
         const timestamp = new Date().toISOString();
-        fs.appendFileSync(this.logFile, `[${ timestamp }] ${ message }\n`, 'utf8');
+        try {
+            fs.appendFileSync(this.logFile, `[${ timestamp }] ${ message }\n`, 'utf8');
+        } catch (err) {
+            // As a last resort, write to stderr to avoid losing logs entirely
+            console.error('LOG WRITE FAILED:', err?.message || err);
+        }
     }
 }
 
