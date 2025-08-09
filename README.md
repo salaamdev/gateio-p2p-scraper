@@ -1,28 +1,49 @@
 # Gate.io P2P Scraper
 
-## Description
-This project is a web scraper designed to extract P2P data from the Gate.io P2P trading platform. It collects information about various merchants and their respective prices, volumes, and other relevant details.
+This scraper extracts P2P merchant listings from Gate.io and writes JSON/CSV. It can run once or on a 60s interval.
 
-## Installation
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/salaamdev/gateio-p2p-scraper.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd gateio-p2p-scraper
-    ```
-3. Install the required dependencies:
-    ```bash
-    npm install
-    ```
+## Install
 
-## Usage
-1. Run the scraper:
-    ```bash
-    node index.js
-    ```
-2. The scraped data will be saved in a file named `output.json` in the project directory.
+```bash
+npm install
+```
 
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## Run
+
+- One-off scrape:
+
+```bash
+npm run scrape:once
+```
+
+- Continuous (every 60 seconds):
+
+```bash
+npm start
+```
+
+Outputs:
+
+- `data/gateio_p2p_merchants.json`
+- `data/gateio_p2p_merchants.csv`
+- `data/filtered_merchants.json`
+- `data/filtered_merchants.csv`
+
+Logs:
+
+- `logs/activity.log`
+- `logs/errors.log`
+- `logs/warnings.log`
+
+## Configuration
+
+- URL is set in `scraper/config.js`.
+- To force a specific Chrome/Chromium binary, set `CHROME_EXECUTABLE`:
+
+```bash
+export CHROME_EXECUTABLE=/usr/bin/google-chrome-stable
+```
+
+If unset, Puppeteer’s bundled Chromium is used.
+
+See `RUNBOOK.md` for troubleshooting and details.
