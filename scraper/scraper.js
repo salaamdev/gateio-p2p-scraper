@@ -15,11 +15,17 @@ async function runScraper () {
 
     try {
         log("Launching browser...");
-        browser = await puppeteer.launch({
-            executablePath: chromeExecutablePath,
+        const launchOpts = {
             headless: true,
             args: ["--no-sandbox", "--disable-setuid-sandbox"]
-        });
+        };
+        if (chromeExecutablePath) {
+            launchOpts.executablePath = chromeExecutablePath;
+            log(`Using custom Chrome executable: ${chromeExecutablePath}`);
+        } else {
+            log("Using Puppeteer's bundled Chromium (no CHROME_EXECUTABLE provided)");
+        }
+        browser = await puppeteer.launch(launchOpts);
 
         const page = await browser.newPage();
         log("Setting viewport to 1920x1080...");
