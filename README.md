@@ -58,6 +58,35 @@ Run continuously (default interval from `.env`):
 npm start
 ```
 
+## Docker
+
+Build the image:
+
+```bash
+docker build -t gateio-p2p-scraper:latest .
+```
+
+Run with your `.env` and persist outputs to the host:
+
+```bash
+docker run --rm \
+	--env-file .env \
+	-v "$(pwd)/data:/app/data" \
+	-v "$(pwd)/logs:/app/logs" \
+	gateio-p2p-scraper:latest
+```
+
+Or use docker-compose:
+
+```bash
+docker compose up --build
+```
+
+Notes:
+
+- Inside Docker, leave `CHROME_EXECUTABLE` unset so Puppeteer uses its bundled Chromium.
+- Data will appear in `./data` and logs in `./logs` on your host.
+
 ## Outputs
 
 - `data/gateio_p2p_merchants.json`
@@ -110,6 +139,7 @@ npm test
 - `scraper/dataSaver.js` — writes JSON/CSV files to `data/`
 - `scraper/filterMerchant.js` — returns adjacent records for a target merchant and saves filtered outputs
 - `scraper/logger.js` — writes to `logs/`
+- `Dockerfile`, `.dockerignore`, `docker-compose.yml` — containerized runtime with Chromium deps
 
 ## Notes on maintainability and robustness
 
