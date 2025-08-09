@@ -11,21 +11,30 @@ async function extractMerchants (page) {
     try {
         return await page.evaluate(() => {
             const merchantData = [];
-            // Adjust selectors to target the merchant containers
-            const merchantElements = document.querySelectorAll('.mantine-1s8spa1 .dataMsg, .p2p-newfriend-list');
+            // Container candidates; site may change class names over time
+            const containers = document.querySelectorAll(
+                '.mantine-1s8spa1 .dataMsg, .p2p-newfriend-list, [data-testid="p2p-list"] .dataMsg'
+            );
 
-            merchantElements.forEach((merchant) => {
-                const name = merchant.querySelector('.markList-username')?.innerText.trim() || "N/A";
-                const price = merchant.querySelector('[style*="font-weight: 700"]')?.innerText.trim() || "N/A";
-                const currency = merchant.querySelector('[style*="font-weight: 500"]')?.innerText.trim() || "N/A";
-                const sizeLimit = merchant.querySelector('[style*="color: var(--color-text-1)"] div:nth-child(2)')?.innerText.trim() || "N/A";
-                const discount = merchant.querySelector('.p2p-discount-icon-txt, .p2p-discount-listicon')?.innerText.trim() || "N/A";
+            containers.forEach((merchant) => {
+                const text = (sel) => merchant.querySelector(sel)?.textContent?.trim() || 'N/A';
+                const name = text('.markList-username, [data-testid="merchant-name"]');
+                const priceRaw = text('[style*="font-weight: 700"], [data-testid="price"]');
+                const currency = text('[style*="font-weight: 500"], [data-testid="currency"]');
+                const sizeLimit = text('[style*="color: var(--color-text-1)"] div:nth-child(2), [data-testid="limit"]');
+                const discount = text('.p2p-discount-icon-txt, .p2p-discount-listicon, [data-testid="discount"]');
+
+                const numericPrice = (() => {
+                    const m = priceRaw.replace(/[,\s]/g, '').match(/([0-9]*\.?[0-9]+)/);
+                    return m ? Number(m[1]) : null;
+                })();
 
                 merchantData.push({
-                    "Merchant Name": name,
-                    "Price": `${ price } ${ currency }`,
-                    "Size/Limit": sizeLimit,
-                    "Discount": discount
+                    'Merchant Name': name,
+                    Price: `${priceRaw} ${currency}`.trim(),
+                    'PriceNumeric': numericPrice,
+                    'Size/Limit': sizeLimit,
+                    Discount: discount,
                 });
             });
 
