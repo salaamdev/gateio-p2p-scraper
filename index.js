@@ -1,11 +1,23 @@
 // index.js
-const {runScraper} = require('./scraper/scraper');
+const { runScraper } = require('./scraper/scraper');
+const { SCRAPE_INTERVAL_MS, validateConfig } = require('./scraper/config');
 
-function startScrapingRegularly () {
+let intervalId;
+
+function startScrapingRegularly() {
+    validateConfig();
     runScraper();
-    setInterval(() => {
+    intervalId = setInterval(() => {
         runScraper();
-    }, 60000);
+    }, SCRAPE_INTERVAL_MS);
 }
+
+function shutdown() {
+    if (intervalId) clearInterval(intervalId);
+    process.exit(0);
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
 startScrapingRegularly();
