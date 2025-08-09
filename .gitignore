@@ -1,3 +1,4 @@
 node_modules
 logs/*
 data/*
+/home/as/Desktop/devfolder/gateio-p2p-scraper/logs/activity.log
