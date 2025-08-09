@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  scraper:
+    build: .
+    image: gateio-p2p-scraper:latest
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
