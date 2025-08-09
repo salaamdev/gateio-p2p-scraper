@@ -1,26 +1,43 @@
 {
-  "name": "p2p_alerts",
-  "version": "1.0.0",
+  "name": "gateio-p2p-scraper",
+  "version": "1.1.0",
+  "description": "Scrape Gate.io P2P listings to JSON/CSV with robust logging and config.",
   "main": "index.js",
   "scripts": {
-  "start": "node index.js",
-  "scrape:once": "node -e \"require('./scraper/scraper').runScraper()\"",
-  "lint": "echo 'No linter configured'"
+    "start": "node index.js",
+    "scrape:once": "node -e \"require('./scraper/scraper').runScraper()\"",
+    "lint": "eslint .",
+    "format": "prettier -w .",
+    "test": "jest --passWithNoTests"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/salaamdev/p2p_alerts.git"
+    "url": "git+https://github.com/salaamdev/gateio-p2p-scraper.git"
   },
-  "keywords": [],
+  "keywords": [
+    "gateio",
+    "p2p",
+    "scraper",
+    "puppeteer"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/salaamdev/p2p_alerts/issues"
+    "url": "https://github.com/salaamdev/gateio-p2p-scraper/issues"
   },
-  "homepage": "https://github.com/salaamdev/p2p_alerts#readme",
-  "description": "",
+  "homepage": "https://github.com/salaamdev/gateio-p2p-scraper#readme",
   "dependencies": {
-    "node-notifier": "^10.0.1",
+    "dotenv": "^16.4.5",
     "puppeteer": "^24.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.21.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.6.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3"
   }
 }
