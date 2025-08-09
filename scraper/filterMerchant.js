@@ -2,9 +2,23 @@
 const fs = require('fs');
 const path = require('path');
 const {log, errorLog} = require('./logger');
+const { TARGET_MERCHANT } = require('./config');
 
-function getAdjacentMerchants(merchants, targetMerchant = "coinftw") {
+function ensureDir(dir) {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+}
+
+function csvEscape(value) {
+    if (value == null) return '';
+    const str = String(value).replace(/"/g, '""');
+    return `"${str}"`;
+}
+
+function getAdjacentMerchants(merchants, targetMerchant = TARGET_MERCHANT) {
     const result = [];
+    if (!Array.isArray(merchants) || merchants.length === 0) return result;
     const targetIndex = merchants.findIndex(m => m["Merchant Name"] === targetMerchant);
     
     if (targetIndex === -1) return result;
@@ -27,7 +41,9 @@ function getAdjacentMerchants(merchants, targetMerchant = "coinftw") {
 
 function saveFilteredToJson(data) {
     try {
-        const filePath = path.join(__dirname, '../data/filtered_merchants.json');
+        const dataDir = path.join(__dirname, '../data');
+        ensureDir(dataDir);
+        const filePath = path.join(dataDir, 'filtered_merchants.json');
         fs.writeFileSync(filePath, JSON.stringify(data, null, 4), 'utf8');
         log(`Filtered data successfully saved to JSON: ${filePath}`);
     } catch (err) {
@@ -37,11 +53,14 @@ function saveFilteredToJson(data) {
 
 function saveFilteredToCsv(data) {
     try {
-        const filePath = path.join(__dirname, '../data/filtered_merchants.csv');
+        const dataDir = path.join(__dirname, '../data');
+        ensureDir(dataDir);
+        const filePath = path.join(dataDir, 'filtered_merchants.csv');
         const csvHeader = "Merchant Name,Price,Size/Limit,Discount\n";
-        const csvRows = data.map(row =>
-            `"${row['Merchant Name']}","${row.Price}","${row['Size/Limit']}","${row.Discount}"`
-        ).join("\n");
+        const csvRows = data
+            .map((row) => [row['Merchant Name'], row.Price, row['Size/Limit'], row.Discount]
+                .map(csvEscape).join(','))
+            .join("\n");
 
         fs.writeFileSync(filePath, csvHeader + csvRows, 'utf8');
         log(`Filtered data successfully saved to CSV: ${filePath}`);
