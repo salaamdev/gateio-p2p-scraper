@@ -3,6 +3,18 @@ const fs = require('fs');
 const path = require('path');
 const {log, errorLog} = require('./logger');
 
+function ensureDir(dir) {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+}
+
+function csvEscape(value) {
+    if (value == null) return '';
+    const str = String(value).replace(/"/g, '""');
+    return `"${str}"`;
+}
+
 /**
  * Save data to a JSON file.
  *
@@ -10,9 +22,11 @@ const {log, errorLog} = require('./logger');
  */
 function saveToJson (data) {
     try {
-        const filePath = path.join(__dirname, '../data/gateio_p2p_merchants.json');
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 4), 'utf8');
-        log(`Data successfully saved to JSON: ${ filePath }`);
+        const dataDir = path.join(__dirname, '../data');
+        ensureDir(dataDir);
+        const filePath = path.join(dataDir, 'gateio_p2p_merchants.json');
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+        log(`Data successfully saved to JSON: ${ filePath } (records=${data.length})`);
     } catch (err) {
         errorLog("Error saving data to JSON:", err);
     }
@@ -25,14 +39,20 @@ function saveToJson (data) {
  */
 function saveToCsv (data) {
     try {
-        const filePath = path.join(__dirname, '../data/gateio_p2p_merchants.csv');
+        const dataDir = path.join(__dirname, '../data');
+        ensureDir(dataDir);
+        const filePath = path.join(dataDir, 'gateio_p2p_merchants.csv');
         const csvHeader = "Merchant Name,Price,Size/Limit,Discount\n";
-        const csvRows = data.map(row =>
-            `"${ row['Merchant Name'] }","${ row.Price }","${ row['Size/Limit'] }","${ row.Discount }"`
-        ).join("\n");
+        const csvRows = data
+            .map((row) =>
+                [row['Merchant Name'], row.Price, row['Size/Limit'], row.Discount]
+                    .map(csvEscape)
+                    .join(',')
+            )
+            .join("\n");
 
         fs.writeFileSync(filePath, csvHeader + csvRows, 'utf8');
-        log(`Data successfully saved to CSV: ${ filePath }`);
+        log(`Data successfully saved to CSV: ${ filePath } (records=${data.length})`);
     } catch (err) {
         errorLog("Error saving data to CSV:", err);
     }
