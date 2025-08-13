@@ -23,7 +23,7 @@ module.exports = [
     },
   },
   {
-    files: ['scraper/autoScroll.js', 'scraper/extract.js'],
+    files: ['scraper/autoScroll.js', 'scraper/extract.js', 'test-*.js', 'debug-*.js'],
     languageOptions: {
       globals: {
         document: 'readonly',
@@ -41,7 +41,12 @@ module.exports = [
       globals: {
         describe: 'readonly',
         it: 'readonly',
+        test: 'readonly',
         expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
       },
     },
   },
