@@ -1,5 +1,5 @@
 // scraper/extract.js
-const { errorLog, debugLog } = require('./logger');
+const { errorLog, log } = require('./logger');
 const { 
     SELECTOR_STRATEGIES, 
     validateMerchantData 
@@ -257,12 +257,12 @@ async function extractMerchants(page) {
         });
 
         // Log extraction results
-        debugLog(`Extraction completed: ${validatedResults.merchants.length} valid merchants found`);
+        log(`Extraction completed: ${validatedResults.merchants.length} valid merchants found`);
         if (validatedResults.validationErrors.length > 0) {
             errorLog(`Validation errors: ${validatedResults.validationErrors.length} merchants failed validation`);
         }
         if (validatedResults.warnings.length > 0) {
-            debugLog(`Warnings: ${validatedResults.warnings.length} merchants have warnings`);
+            log(`Warnings: ${validatedResults.warnings.length} merchants have warnings`);
         }
 
         return validatedResults.merchants;
