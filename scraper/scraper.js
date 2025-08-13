@@ -1,17 +1,16 @@
 // scraper/scraper.js
 const puppeteer = require('puppeteer');
-const { log, warn, errorLog } = require('./logger');
+const { log, errorLog } = require('./logger');
+const { applyStealth, simulateHumanBehavior, getStealthLaunchArgs } = require('./stealth');
+const { EnhancedStealthManager } = require('./enhanced-stealth');
+const { saveData } = require('./dataSaver');
+const { filterMerchantsByLocation } = require('./filterMerchant');
+const { getSelectors } = require('./selectors');
 const { autoScroll } = require('./autoScroll');
 const { extractMerchants } = require('./extract');
-const { saveToJson, saveToCsv } = require('./dataSaver');
-const { getAdjacentMerchants, saveFilteredToJson, saveFilteredToCsv } = require('./filterMerchant');
-const { TARGET_URL, chromeExecutablePath, TARGET_MERCHANT } = require('./config');
-const { 
-    applyStealth, 
-    simulateHumanBehavior, 
-    getStealthLaunchArgs,
-    humanDelay 
-} = require('./stealth');
+const { TARGET_URL, TARGET_MERCHANT, chromeExecutablePath } = require('./config');
+const fs = require('fs');
+const path = require('path');
 
 // Import retry logic and circuit breaker
 const {
