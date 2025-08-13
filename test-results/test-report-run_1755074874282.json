@@ -1,0 +1,77 @@
+{
+  "runId": "run_1755074874282",
+  "timestamp": "2025-08-13T08:47:54.284Z",
+  "duration": 2.4571169999999967,
+  "statistics": {
+    "totalSuites": 1,
+    "totalTests": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "timeout": 0,
+    "error": 0,
+    "successRate": 100,
+    "avgTestDuration": 0.39853949999999827
+  },
+  "suites": [
+    {
+      "id": "suite_1755074874281_4ot4n765h",
+      "name": "BasicTests",
+      "description": "Testing basic functionality",
+      "status": "PASSED",
+      "duration": 1.0296639999999968,
+      "results": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "timeout": 0,
+        "error": 0
+      },
+      "tests": [
+        {
+          "id": "test_1755074874282_dob0dmmld",
+          "name": "SamplePassingTest",
+          "type": "UNIT",
+          "status": "PASSED",
+          "duration": 0.7193510000000032,
+          "error": null,
+          "tags": [],
+          "logs": [
+            {
+              "timestamp": "2025-08-13T08:47:54.283Z",
+              "message": "Test passed: SamplePassingTest"
+            }
+          ]
+        },
+        {
+          "id": "test_1755074874282_fxpsnmgr7",
+          "name": "SampleMathTest",
+          "type": "UNIT",
+          "status": "PASSED",
+          "duration": 0.07772799999999336,
+          "error": null,
+          "tags": [],
+          "logs": [
+            {
+              "timestamp": "2025-08-13T08:47:54.284Z",
+              "message": "Test passed: SampleMathTest"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environment": {
+    "nodeVersion": "v22.18.0",
+    "platform": "linux",
+    "arch": "x64",
+    "memory": {
+      "rss": 48934912,
+      "heapTotal": 7176192,
+      "heapUsed": 5449624,
+      "external": 1844071,
+      "arrayBuffers": 18875
+    }
+  }
+}

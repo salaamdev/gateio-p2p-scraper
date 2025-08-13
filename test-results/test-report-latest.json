@@ -1,0 +1,77 @@
+{
+  "runId": "run_1755074908447",
+  "timestamp": "2025-08-13T08:48:28.451Z",
+  "duration": 3.2697959999999995,
+  "statistics": {
+    "totalSuites": 1,
+    "totalTests": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "timeout": 0,
+    "error": 0,
+    "successRate": 100,
+    "avgTestDuration": 0.5371540000000081
+  },
+  "suites": [
+    {
+      "id": "suite_1755074908447_860qneb6u",
+      "name": "BasicTests",
+      "description": "Testing basic functionality",
+      "status": "PASSED",
+      "duration": 1.394565,
+      "results": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "timeout": 0,
+        "error": 0
+      },
+      "tests": [
+        {
+          "id": "test_1755074908447_eldw0nwl1",
+          "name": "SamplePassingTest",
+          "type": "UNIT",
+          "status": "PASSED",
+          "duration": 0.9435820000000064,
+          "error": null,
+          "tags": [],
+          "logs": [
+            {
+              "timestamp": "2025-08-13T08:48:28.449Z",
+              "message": "Test passed: SamplePassingTest"
+            }
+          ]
+        },
+        {
+          "id": "test_1755074908447_j72nxg7hj",
+          "name": "SampleMathTest",
+          "type": "UNIT",
+          "status": "PASSED",
+          "duration": 0.1307260000000099,
+          "error": null,
+          "tags": [],
+          "logs": [
+            {
+              "timestamp": "2025-08-13T08:48:28.450Z",
+              "message": "Test passed: SampleMathTest"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environment": {
+    "nodeVersion": "v22.18.0",
+    "platform": "linux",
+    "arch": "x64",
+    "memory": {
+      "rss": 49221632,
+      "heapTotal": 7176192,
+      "heapUsed": 5404768,
+      "external": 1844071,
+      "arrayBuffers": 18875
+    }
+  }
+}
