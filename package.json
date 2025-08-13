@@ -2,13 +2,20 @@
   "name": "gateio-p2p-scraper",
   "version": "1.1.0",
   "description": "Scrape Gate.io P2P listings to JSON/CSV with robust logging and config.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node src/index.js",
+    "start:dev": "NODE_ENV=development DEBUG=true node src/index.js",
+    "start:prod": "NODE_ENV=production node src/index.js",
+    "start:staging": "NODE_ENV=staging node src/index.js",
+    "test:config": "node src/index.js --test-config",
+    "test:alert": "node src/index.js --test-alert",
+    "config": "node src/index.js --config",
     "scrape:once": "node -e \"require('./scraper/scraper').runScraper()\"",
     "lint": "eslint .",
     "format": "prettier -w .",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "legacy:start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +35,9 @@
   "homepage": "https://github.com/salaamdev/gateio-p2p-scraper#readme",
   "dependencies": {
     "dotenv": "^16.4.5",
+    "joi": "^18.0.0",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.5",
     "puppeteer": "^24.1.0",
     "sqlite3": "^5.1.7"
   },
