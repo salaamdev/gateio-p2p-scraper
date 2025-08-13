@@ -131,15 +131,15 @@ npm test
 
 ## Project structure
 
-- `index.js` — schedules the scraper to run every 60s
-- `scraper/scraper.js` — orchestrates launch, navigation, scroll, extraction, and save
-- `scraper/config.js` — target URL and optional Chrome executable path (via env)
-- `scraper/autoScroll.js` — helper to load all dynamic items
-- `scraper/extract.js` — DOM selectors and extraction logic
-- `scraper/dataSaver.js` — writes JSON/CSV files to `data/`
-- `scraper/filterMerchant.js` — returns adjacent records for a target merchant and saves filtered outputs
-- `scraper/logger.js` — writes to `logs/`
-- `Dockerfile`, `.dockerignore`, `docker-compose.yml` — containerized runtime with Chromium deps
+- `src/`
+	- `index.js` — CLI/entrypoint for the enhanced app lifecycle
+	- `app.js` — main application class orchestrating services
+	- `config/` — environment configs and validation schemas
+- `scraper/` — scraping pipeline, selectors, database, metrics, logging, shutdown, etc.
+- `scripts/healthcheck.js` — fast readiness/self-check used locally and in Docker HEALTHCHECK
+- `data/`, `logs/` — runtime outputs (mounted in Docker)
+- `Dockerfile`, `.dockerignore`, `docker-compose.yml` — containerization
+- `.editorconfig`, `.prettierrc`, `.nvmrc` — editor/formatting/runtime defaults
 
 ## Notes on maintainability and robustness
 

@@ -8,10 +8,8 @@
     "start:dev": "NODE_ENV=development DEBUG=true node src/index.js",
     "start:prod": "NODE_ENV=production node src/index.js",
     "start:staging": "NODE_ENV=staging node src/index.js",
-    "test:config": "node src/index.js --test-config",
-    "test:alert": "node src/index.js --test-alert",
-    "config": "node src/index.js --config",
-    "scrape:once": "node -e \"require('./scraper/scraper').runScraper()\"",
+    "scrape:once": "node -e \"require('./scraper/enhanced-scraper').runScraper()\"",
+    "healthcheck": "node scripts/healthcheck.js",
     "lint": "eslint .",
     "format": "prettier -w .",
     "test": "jest --passWithNoTests",
@@ -51,5 +49,10 @@
     "jest": "^29.7.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.3.3"
+  }
+  ,
+  "engines": {
+    "node": ">=20",
+    "npm": ">=9"
   }
 }

@@ -59,4 +59,8 @@ RUN mkdir -p /app/data /app/logs && chown -R node:node /app
 
 USER node
 
+# Lightweight healthcheck (non-blocking)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node scripts/healthcheck.js || exit 1
+
 CMD ["npm", "start"]

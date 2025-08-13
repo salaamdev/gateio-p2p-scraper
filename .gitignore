@@ -1,5 +1,23 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Runtime data (keep directories via gitkeep)
 logs/
+!logs/.gitkeep
 data/
+!data/.gitkeep
+
+# Environment
 .env
+
+# OS/editor files
 .DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Coverage and build artifacts
+coverage/
+dist/
+tmp/
