@@ -23,16 +23,19 @@ module.exports = [
     },
   },
   {
-    files: ['scraper/autoScroll.js', 'scraper/extract.js', 'test-*.js', 'debug-*.js'],
+    files: ['scraper/autoScroll.js', 'scraper/extract.js', 'scraper/stealth.js', 'scraper/scraper.js', 'test-*.js', 'debug-*.js'],
     languageOptions: {
       globals: {
         document: 'readonly',
         window: 'readonly',
+        navigator: 'readonly',
+        Notification: 'readonly',
       },
     },
     rules: {
       // these files contain code executed in the page context
       'no-undef': 'off',
+      'n/no-unsupported-features/node-builtins': 'off',
     },
   },
   {
