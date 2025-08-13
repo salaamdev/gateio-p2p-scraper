@@ -13,164 +13,216 @@ const {
     humanDelay 
 } = require('./stealth');
 
+// Import retry logic and circuit breaker
+const {
+    retryBrowserLaunch,
+    retryPageNavigation,
+    retryElementWait,
+    retryDataExtraction,
+    BrowserLaunchError,
+    ExtractionError,
+    NoDataFoundError
+} = require('./retryLogic');
+
+const {
+    getCircuitBreaker,
+    getAllCircuitBreakerStats,
+    CircuitBreakerOpenError
+} = require('./circuitBreaker');
+
 /**
- * Main function to run the scraping process with advanced stealth measures.
+ * Main function to run the scraping process with retry logic and circuit breaker.
  */
 async function runScraper() {
     let browser;
+    
+    // Get circuit breakers for different operations
+    const browserCircuit = getCircuitBreaker('BROWSER_LAUNCH');
+    const pageCircuit = getCircuitBreaker('PAGE_OPERATIONS');
+    const dataCircuit = getCircuitBreaker('DATA_EXTRACTION');
 
     try {
-        log("Launching browser with stealth measures...");
+        log("Starting scraper with retry logic and circuit breaker protection...");
         
-        // Get stealth-optimized launch arguments
-        const stealthArgs = getStealthLaunchArgs({
-            disableImages: false, // Keep images to appear more human
-            disableJavaScript: false
-        });
+        // Browser launch with circuit breaker and retry logic
+        browser = await browserCircuit.execute(async () => {
+            return await retryBrowserLaunch(async () => {
+                log("Launching browser with stealth measures...");
+                
+                // Get stealth-optimized launch arguments
+                const stealthArgs = getStealthLaunchArgs({
+                    disableImages: false, // Keep images to appear more human
+                    disableJavaScript: false
+                });
 
-        const launchOpts = {
-            headless: 'new', // Use new headless mode
-            args: stealthArgs,
-            ignoreDefaultArgs: ['--enable-automation'], // Remove automation flag
-            ignoreHTTPSErrors: true
-        };
+                const launchOpts = {
+                    headless: 'new', // Use new headless mode
+                    args: stealthArgs,
+                    ignoreDefaultArgs: ['--enable-automation'], // Remove automation flag
+                    ignoreHTTPSErrors: true
+                };
 
-        // Use custom Chrome if specified
-        if (chromeExecutablePath) {
-            launchOpts.executablePath = chromeExecutablePath;
-            log(`Using custom Chrome executable: ${chromeExecutablePath}`);
-        } else {
-            log("Using Puppeteer's bundled Chromium with stealth configuration");
-        }
+                // Use custom Chrome if specified
+                if (chromeExecutablePath) {
+                    launchOpts.executablePath = chromeExecutablePath;
+                    log(`Using custom Chrome executable: ${chromeExecutablePath}`);
+                } else {
+                    log("Using Puppeteer's bundled Chromium with stealth configuration");
+                }
 
-        browser = await puppeteer.launch(launchOpts);
-
-        // Create new page with stealth measures
-        const page = await browser.newPage();
-        
-        // Apply comprehensive stealth measures
-        await applyStealth(page);
-        
-        log("Stealth measures applied successfully");
-
-        // Navigate to target URL with enhanced error handling
-        log(`Navigating to target URL: ${TARGET_URL}`);
-        
-        try {
-            await page.goto(TARGET_URL, { 
-                waitUntil: 'networkidle2', 
-                timeout: 90000 
+                try {
+                    return await puppeteer.launch(launchOpts);
+                } catch (error) {
+                    throw new BrowserLaunchError(`Failed to launch browser: ${error.message}`, error);
+                }
             });
-            log("Page navigation complete.");
-        } catch {
-            // Retry navigation with different strategy
-            warn("Initial navigation failed, retrying with different approach...");
-            await humanDelay(2000, 4000);
-            
-            await page.goto(TARGET_URL, { 
-                waitUntil: 'domcontentloaded', 
-                timeout: 60000 
-            });
-            log("Page navigation complete (retry).");
-        }
+        }, 'browser launch');
 
-        // Simulate human behavior before extracting data
+        // Page creation and navigation with circuit breaker and retry logic
+        const page = await pageCircuit.execute(async () => {
+            return await retryPageNavigation(async () => {
+                log("Creating new page and applying stealth measures...");
+                
+                const page = await browser.newPage();
+                
+                // Apply comprehensive stealth measures
+                await applyStealth(page, {
+                    userAgent: undefined, // Will use random user agent
+                    language: undefined,  // Will use random language
+                    timezone: undefined   // Will use random timezone
+                });
+
+                // Navigate to target URL
+                log(`Navigating to: ${TARGET_URL}`);
+                await page.goto(TARGET_URL, { 
+                    waitUntil: 'networkidle2',
+                    timeout: 30000 // 30 second timeout
+                });
+
+                return page;
+            });
+        }, 'page navigation');
+
+        // Human behavior simulation (not critical, so no circuit breaker)
         log("Simulating human behavior...");
         await simulateHumanBehavior(page);
 
-        log("Waiting for merchant elements to load...");
-        
-        // Wait for content with multiple strategies
-        try {
-            await page.waitForSelector('body', { timeout: 30000 });
-            log("Basic page elements detected.");
-            
-            // Additional wait for dynamic content
-            await humanDelay(2000, 3000);
-            
-            // Check for specific merchant containers with fallback
-            try {
-                await page.waitForFunction(() => {
-                    const selectors = [
-                        '.dataMsg',
-                        '[data-testid="p2p-list"]',
-                        '.p2p-newfriend-list',
-                        'tbody tr',
-                        '.list-item'
-                    ];
+        // Element waiting with circuit breaker and retry logic
+        await pageCircuit.execute(async () => {
+            return await retryElementWait(async () => {
+                log("Waiting for merchant elements to load...");
+                
+                try {
+                    // Wait for basic page structure
+                    await page.waitForSelector('body', { timeout: 10000 });
+                    log("Basic page elements detected.");
                     
-                    return selectors.some(selector => 
-                        document.querySelectorAll(selector).length > 0
-                    );
-                }, { timeout: 15000 });
-                log("Merchant elements detected.");
-            } catch {
-                log("Specific merchant selectors not found, proceeding with extraction anyway...");
-            }
-        } catch (waitError) {
-            warn("Element waiting failed, but continuing with extraction:", waitError.message);
+                    // Add human delay
+                    await humanDelay();
+                    
+                    // Wait for merchant containers or similar dynamic content
+                    await page.waitForFunction(() => {
+                        // Look for common container patterns
+                        const containers = document.querySelectorAll(
+                            'div[class*="container"], div[class*="list"], div[class*="item"], ' +
+                            'div[class*="card"], div[class*="merchant"], div[class*="trader"]'
+                        );
+                        return containers.length > 0;
+                    }, { timeout: 15000 });
+                    
+                    log("Merchant elements detected.");
+                    
+                } catch (error) {
+                    throw new Error(`Failed to wait for elements: ${error.message}`);
+                }
+            });
+        }, 'element waiting');
+
+        // Auto-scroll (not critical, so basic error handling)
+        try {
+            log("Starting enhanced auto-scroll to load dynamic content...");
+            await autoScroll(page);
+            log("Auto-scroll complete.");
+        } catch (error) {
+            warn(`Auto-scroll encountered issues, continuing: ${error.message}`);
         }
 
-        log("Starting enhanced auto-scroll to load dynamic content...");
-        await autoScroll(page, {
-            maxTime: 12000,
-            pauseProbability: 0.2, // More human-like pauses
-            reverseScrollProbability: 0.05 // Occasional reverse scrolls
-        });
-        log("Auto-scroll complete.");
+        // Add delay before extraction
+        await humanDelay();
 
-        // Additional pause before extraction (human-like)
-        await humanDelay(1000, 2000);
+        // Data extraction with circuit breaker and retry logic
+        const merchantData = await dataCircuit.execute(async () => {
+            return await retryDataExtraction(async () => {
+                log("Extracting merchant data...");
+                
+                try {
+                    const merchants = await extractMerchants(page);
+                    
+                    if (!merchants || merchants.length === 0) {
+                        throw new NoDataFoundError("No merchant data found on the page");
+                    }
+                    
+                    log(`Extraction complete. Found ${merchants.length} merchant(s).`);
+                    return merchants;
+                    
+                } catch (error) {
+                    if (error instanceof NoDataFoundError) {
+                        throw error;
+                    }
+                    throw new ExtractionError(`Data extraction failed: ${error.message}`, error);
+                }
+            });
+        }, 'data extraction');
 
-        log("Extracting merchant data...");
-        const merchants = await extractMerchants(page);
-        log(`Extraction complete. Found ${merchants.length} merchant(s).`);
-
-        if (merchants.length > 0) {
-            log(`Successfully extracted ${merchants.length} merchants! Saving data...`);
-            saveToJson(merchants);
-            saveToCsv(merchants);
-
-            // Filter and save adjacent merchants
-            const filteredMerchants = getAdjacentMerchants(merchants, TARGET_MERCHANT);
-            if (filteredMerchants.length > 0) {
-                log(`Filtering adjacent merchants for target merchant: ${TARGET_MERCHANT} ...`);
-                saveFilteredToJson(filteredMerchants);
-                saveFilteredToCsv(filteredMerchants);
+        // Save data (not critical for circuit breaker, but with basic retry)
+        if (merchantData && merchantData.length > 0) {
+            log(`Successfully extracted ${merchantData.length} merchants! Saving data...`);
+            
+            try {
+                await saveToJson(merchantData);
+                await saveToCsv(merchantData);
+            } catch (saveError) {
+                errorLog("Failed to save data", saveError);
+                // Don't fail the entire operation for save errors
             }
 
-            // Log stealth effectiveness
-            log("Stealth scraping completed successfully - no detection triggered");
+            // Filter and save adjacent merchants if target is specified
+            if (TARGET_MERCHANT) {
+                try {
+                    const adjacentMerchants = getAdjacentMerchants(merchantData, TARGET_MERCHANT);
+                    if (adjacentMerchants.length > 0) {
+                        await saveFilteredToJson(adjacentMerchants);
+                        await saveFilteredToCsv(adjacentMerchants);
+                        log(`Saved ${adjacentMerchants.length} adjacent merchants for target: ${TARGET_MERCHANT}`);
+                    }
+                } catch (filterError) {
+                    errorLog("Failed to filter and save adjacent merchants", filterError);
+                }
+            }
+        }
+
+        log("Stealth scraping completed successfully - no detection triggered");
+
+        // Log circuit breaker statistics
+        const circuitStats = getAllCircuitBreakerStats();
+        log(`Circuit breaker statistics: ${JSON.stringify(circuitStats)}`);
+
+    } catch (error) {
+        if (error instanceof CircuitBreakerOpenError) {
+            errorLog("Circuit breaker prevented operation", error);
         } else {
-            warn("No merchants found. This could indicate:");
-            warn("- Website structure has changed");
-            warn("- Anti-bot measures detected the scraper");
-            warn("- Network issues during page load");
-            warn("- Selectors need adjustment");
+            errorLog("An error occurred during stealth scraping", error);
         }
-    } catch (err) {
-        errorLog("An error occurred during stealth scraping:", err);
-        
-        // Enhanced error analysis
-        if (err.message.includes('net::ERR_FAILED')) {
-            errorLog("Network error - possible IP blocking or rate limiting");
-        } else if (err.message.includes('timeout')) {
-            errorLog("Timeout error - page loading too slow or anti-bot measures");
-        } else if (err.message.includes('Navigation failed')) {
-            errorLog("Navigation blocked - possible bot detection");
-        }
+        throw error;
     } finally {
         if (browser) {
             try {
                 log("Closing browser...");
-                
-                // Human-like closing delay
-                await humanDelay(500, 1000);
-                
+                await humanDelay(); // Human-like delay before closing
                 await browser.close();
                 log("Browser closed.");
-            } catch (closeErr) {
-                errorLog('Error closing browser', closeErr);
+            } catch (closeError) {
+                errorLog("Error closing browser", closeError);
             }
         }
     }
