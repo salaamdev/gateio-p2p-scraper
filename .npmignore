@@ -1,0 +1,37 @@
+# Exclude development and non-production assets from npm package
+
+# Node and logs
+node_modules/
+logs/
+logs/**
+!logs/.gitkeep
+
+# Data outputs
+data/
+data/**
+!data/.gitkeep
+
+# Tests and reports
+tests/
+__tests__/
+coverage/
+test-results/
+*.test.js
+test-*.js
+
+# Legacy/old/debug
+old/
+debug-page-load.js
+
+# Root markdown docs (docs/ contains copies)
+/*.md
+!/docs/**
+
+# Editor/OS files
+.vscode/
+.idea/
+.DS_Store
+
+# Docker files not needed in package (optional)
+Dockerfile
+docker-compose.yml

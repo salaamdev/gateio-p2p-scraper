@@ -19,3 +19,17 @@ data/*
 .idea
 coverage
 old
+
+# Exclude tests and reports from Docker context
+tests
+__tests__
+test-results
+*.test.js
+test-*.js
+
+# Exclude root markdown docs (docs/ contains copies)
+/*.md
+!/docs/**
+
+# Exclude debug scripts
+debug-page-load.js

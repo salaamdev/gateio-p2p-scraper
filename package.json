@@ -12,8 +12,7 @@
     "healthcheck": "node scripts/healthcheck.js",
     "lint": "eslint .",
     "format": "prettier -w .",
-    "test": "jest --passWithNoTests",
-    "legacy:start": "node index.js"
+  "test": "jest --passWithNoTests"
   },
   "repository": {
     "type": "git",
