@@ -28,7 +28,8 @@
   "homepage": "https://github.com/salaamdev/gateio-p2p-scraper#readme",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "puppeteer": "^24.1.0"
+    "puppeteer": "^24.1.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "eslint": "^9.9.0",

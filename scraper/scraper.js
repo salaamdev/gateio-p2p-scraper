@@ -30,11 +30,17 @@ const {
     CircuitBreakerOpenError
 } = require('./circuitBreaker');
 
+// Import validation and database (Features 4 & 5)
+const { validateMerchants } = require('./schema');
+const { DatabaseManager, DataPipeline } = require('./database');
+
 /**
  * Main function to run the scraping process with retry logic and circuit breaker.
  */
 async function runScraper() {
     let browser;
+    let database;
+    let dataPipeline;
     
     // Get circuit breakers for different operations
     const browserCircuit = getCircuitBreaker('BROWSER_LAUNCH');
@@ -43,6 +49,14 @@ async function runScraper() {
 
     try {
         log("Starting scraper with retry logic and circuit breaker protection...");
+        
+        // Initialize database (Feature 5)
+        log("Initializing database...");
+        database = new DatabaseManager();
+        await database.initialize();
+        
+        // Initialize data pipeline (Feature 5)
+        dataPipeline = new DataPipeline(database);
         
         // Browser launch with circuit breaker and retry logic
         browser = await browserCircuit.execute(async () => {
@@ -174,13 +188,44 @@ async function runScraper() {
             });
         }, 'data extraction');
 
-        // Save data (not critical for circuit breaker, but with basic retry)
+        // Process and save data with validation and database storage (Features 4 & 5)
         if (merchantData && merchantData.length > 0) {
-            log(`Successfully extracted ${merchantData.length} merchants! Saving data...`);
+            log(`Successfully extracted ${merchantData.length} merchants! Processing data...`);
+            
+            // Validate data (Feature 4)
+            log("Validating merchant data...");
+            const validationResult = validateMerchants(merchantData);
+            
+            if (validationResult.summary.totalErrors === 0) {
+                log(`Data validation passed: ${validationResult.summary.validCount}/${validationResult.totalRecords} merchants valid`);
+            } else {
+                warn(`Data validation issues found: ${validationResult.summary.totalErrors} errors, ${validationResult.summary.totalWarnings} warnings`);
+                
+                // Log specific errors
+                Object.entries(validationResult.aggregateErrors).forEach(([field, errors]) => {
+                    errors.forEach(error => errorLog(`Validation error in ${field}: ${error.message}`));
+                });
+                
+                // Log specific warnings
+                Object.entries(validationResult.aggregateWarnings).forEach(([field, warnings]) => {
+                    warnings.forEach(warning => warn(`Validation warning in ${field}: ${warning.message}`));
+                });
+            }
+
+            // Use valid records from validation
+            const validMerchants = validationResult.validRecords.map(record => record.data);
+            const dataToSave = validMerchants.length > 0 ? validMerchants : merchantData;
             
             try {
-                await saveToJson(merchantData);
-                await saveToCsv(merchantData);
+                // Save to database (Feature 5)
+                log("Saving data to database...");
+                const dbResult = await dataPipeline.processScrapeData(dataToSave);
+                log(`Database save complete. Scrape ID: ${dbResult.scrapeId}, ${dbResult.merchantCount} merchants saved`);
+                
+                // Traditional file saves
+                await saveToJson(dataToSave);
+                await saveToCsv(dataToSave);
+                
             } catch (saveError) {
                 errorLog("Failed to save data", saveError);
                 // Don't fail the entire operation for save errors
@@ -189,7 +234,7 @@ async function runScraper() {
             // Filter and save adjacent merchants if target is specified
             if (TARGET_MERCHANT) {
                 try {
-                    const adjacentMerchants = getAdjacentMerchants(merchantData, TARGET_MERCHANT);
+                    const adjacentMerchants = getAdjacentMerchants(dataToSave, TARGET_MERCHANT);
                     if (adjacentMerchants.length > 0) {
                         await saveFilteredToJson(adjacentMerchants);
                         await saveFilteredToCsv(adjacentMerchants);
@@ -215,6 +260,17 @@ async function runScraper() {
         }
         throw error;
     } finally {
+        // Close database connection
+        if (database) {
+            try {
+                log("Closing database connection...");
+                await database.close();
+                log("Database connection closed.");
+            } catch (dbCloseError) {
+                errorLog("Error closing database", dbCloseError);
+            }
+        }
+        
         if (browser) {
             try {
                 log("Closing browser...");
